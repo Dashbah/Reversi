@@ -61,27 +61,6 @@ public class Game {
             }
             System.out.println("Incorrect typeOfPlayers! Try again:");
         }
-//        System.out.println("for easy mode enter 1");
-//        System.out.println("for prof mode enter 2");
-//        while (true) {
-//            int mode;
-//            try {
-//                mode = input.nextInt();
-//            } catch (Exception e) {
-//                System.out.println("Incorrect mode! Try again:");
-//                input.nextLine();
-//                continue;
-//            }
-//            if (mode == 1) {
-//                board.SetMode(Mode.noob);
-//                break;
-//            }
-//            if (mode == 2) {
-//                board.SetMode(Mode.prof);
-//                break;
-//            }
-//            System.out.println("Incorrect input! Try again:");
-//        }
         input.nextLine();
     }
 
