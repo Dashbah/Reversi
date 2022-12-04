@@ -1,17 +1,17 @@
 package reversi.model;
 
-public enum ChipColor {
-    white{
+public enum TypeOfPlayer {
+    person1{
         @Override
         public String toString() {
-            return "white";
+            return "Player1";
         }
     },
-    black{
+    person2{
         @Override
         public String toString() {
-            return "black";
+            return "Player2";
         }
     },
-    empty;
+    computer;
 }

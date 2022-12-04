@@ -1,6 +1,8 @@
 package reversi.controller;
 
 import reversi.model.Board;
+import reversi.model.Mode;
+import reversi.model.TypeOfPlayer;
 import reversi.view.BoardView;
 import reversi.view.Instructions;
 
@@ -10,7 +12,7 @@ import java.util.Scanner;
 public class Game {
 
     Board board;
-    Scanner input = new Scanner(System.in);
+    static Scanner input = new Scanner(System.in);
 
     // ChipColor turn = ChipColor.white;
 
@@ -19,12 +21,8 @@ public class Game {
         // maybe startGame here
     }
 
-    public void StartGame() {
-        Instructions.PrintFirstInstructions();
-        BoardView.PrintBoard(board.getBoard());
-    }
-
-    Coordinates ParseCommand() {
+    public static Coordinates ParseCommand() {
+        // \q - quit
         while (true) {
             var command = input.nextLine();
             try {
@@ -38,69 +36,57 @@ public class Game {
         }
     }
 
-    boolean UserTurn() {
-        if (board.ChoosePositionNoob() == null) {
-            // no move
-            return false;
-        }
-        System.out.println("Type your command (in num letter format)");
-        System.out.println("You are black ;)");
-        // TypeVariants();
+    void ChooseMode() {
+        System.out.println("for person-person game enter 1");
+        System.out.println("for person-computer game enter 2");
         while (true) {
-            var coordinates = ParseCommand();
-            if (board.SetChip(coordinates)) {
-                board.ChangeColor(coordinates.line, coordinates.column);
-                break;
-            } else {
-                System.out.println("Can't paste here, try again:");
+            if (input.nextInt() == 1) {
+                board.SetSecondPlayer(TypeOfPlayer.person2);
+                input.nextLine();
+                return;
             }
+            if (input.nextInt() == 2) {
+                break;
+            }
+            System.out.println("Incorrect input! Try again:");
         }
-        return true;
+        System.out.println("for easy mode enter 1");
+        System.out.println("for prof mode enter 2");
+        while (true) {
+            if (input.nextInt() == 1) {
+                board.SetMode(Mode.noob);
+                break;
+            }
+            if (input.nextInt() == 2) {
+                board.SetMode(Mode.prof);
+                break;
+            }
+            System.out.println("Incorrect input! Try again:");
+        }
     }
-
     public void StartTheGame() {
+        ChooseMode();
+        Instructions.PrintFirstInstructions();
+        BoardView.PrintBoard(board.getBoard());
         var skips = 0;
         while (true) {
             if (board.NoEmptyCells()) {
                 break;
             }
-            if (!UserTurn()) {
+            if (!board.Turn()) {
                 if (skips == 1) {
-                    System.out.println("You also have no move...");
+                    System.out.println("Also no move...");
                     break;
                 }
                 skips = 1;
-                System.out.println("You have no move!");
+                System.out.println("No move...");
             } else {
                 skips = 0;
-                BoardView.PrintBoard(board.getBoard());
-            }
-            board.ChangeTurn();
-
-            if (board.NoEmptyCells()) {
-                break;
-            }
-            // sleep here
-            if (!board.ComputersTurn()) {
-                if (skips == 1) {
-                    System.out.println("Computer also has no move...");
-                    break;
-                }
-                skips = 1;
-                System.out.println("Computer has no move. Your turn!");
-            } else {
-                skips = 0;
-                System.out.println("Computer's move:");
                 BoardView.PrintBoard(board.getBoard());
             }
             board.ChangeTurn();
         }
         board.FinishTheGame();
-        // move turn to Game
-        // var line = parsedCommand.line;
-        // var column = parsedCommand.column;
-        // change turn
-        // if there are empty lines
         // Console.clear
     }
 
