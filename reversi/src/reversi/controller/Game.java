@@ -1,6 +1,7 @@
 package reversi.controller;
 
 import reversi.model.Board;
+import reversi.model.Coordinates;
 import reversi.model.Mode;
 import reversi.model.TypeOfPlayer;
 import reversi.view.BoardView;
@@ -22,12 +23,23 @@ public class Game {
     }
 
     public static Coordinates ParseCommand() {
-        // \q - quit
+        // returns Coordinates(-1, -1) to cancel the last move
         while (true) {
             var command = input.nextLine();
             try {
+                if (command.substring(0, 2).equals("-1")) {
+                    return new Coordinates(-1, -1);
+                }
                 int line = Integer.parseInt(command.substring(0, 1)) - 1;
-                int column = command.charAt(2) - 'a';
+                if (line < 0 || line > 7) {
+                    throw new Exception();
+                }
+                int column;
+                if (command.charAt(2) >= 'a' && command.charAt(2) <= 'h') {
+                    column = command.charAt(2) - 'a';
+                } else {
+                    throw new Exception();
+                }
                 return new Coordinates(line, column);
             } catch (Exception e) {
                 //NumberFormatException | IndexOutOfBoundsException e
@@ -40,30 +52,48 @@ public class Game {
         System.out.println("for person-person game enter 1");
         System.out.println("for person-computer game enter 2");
         while (true) {
-            if (input.nextInt() == 1) {
+            int typeOfPlayers;
+            try {
+                typeOfPlayers = input.nextInt();
+            } catch (Exception e) {
+                System.out.println("Incorrect input! Try again:");
+                input.nextLine();
+                continue;
+            }
+            if (typeOfPlayers == 1) {
                 board.SetSecondPlayer(TypeOfPlayer.person2);
                 input.nextLine();
                 return;
             }
-            if (input.nextInt() == 2) {
+            if (typeOfPlayers == 2) {
                 break;
             }
-            System.out.println("Incorrect input! Try again:");
+            System.out.println("Incorrect typeOfPlayers! Try again:");
         }
         System.out.println("for easy mode enter 1");
         System.out.println("for prof mode enter 2");
         while (true) {
-            if (input.nextInt() == 1) {
+            int mode;
+            try {
+                mode = input.nextInt();
+            } catch (Exception e) {
+                System.out.println("Incorrect mode! Try again:");
+                input.nextLine();
+                continue;
+            }
+            if (mode == 1) {
                 board.SetMode(Mode.noob);
                 break;
             }
-            if (input.nextInt() == 2) {
+            if (mode == 2) {
                 board.SetMode(Mode.prof);
                 break;
             }
             System.out.println("Incorrect input! Try again:");
         }
+        input.nextLine();
     }
+
     public void StartTheGame() {
         ChooseMode();
         Instructions.PrintFirstInstructions();

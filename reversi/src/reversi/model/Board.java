@@ -1,15 +1,15 @@
 package reversi.model;
 
-import reversi.controller.Coordinates;
 import reversi.controller.Game;
 
-import java.awt.*;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Board {
     List<List<Chip>> board;
+
+    // to cancel a move
+    List<List<Chip>> board_last_copy;
 
     Player player1 = new Player(TypeOfPlayer.person1, ChipColor.black);
     Player player2 = new Player(TypeOfPlayer.computer, ChipColor.white);
@@ -240,6 +240,9 @@ public class Board {
         return true;
     }
 
+    public void CancelTheLastMove() {
+
+    }
     public boolean UserTurn(TypeOfPlayer player) {
         if (ChoosePositionNoob() == null) {
             // no move
@@ -250,6 +253,11 @@ public class Board {
         // TypeVariants();
         while (true) {
             var coordinates = Game.ParseCommand();
+            if (coordinates.line == -1) {
+                CancelTheLastMove();
+                System.out.println("canceled");
+                return true;
+            }
             if (IsGoodCell(coordinates.line, coordinates.column) &&
                     EvaluationFunc(coordinates.line, coordinates.column) >= 1) {
                 board.get(coordinates.line).set(coordinates.column, new Chip(turn));

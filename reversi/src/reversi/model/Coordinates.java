@@ -1,4 +1,4 @@
-package reversi.controller;
+package reversi.model;
 
 public class Coordinates {
     public int line;
@@ -11,10 +11,4 @@ public class Coordinates {
         this.line = line;
         this.column = column;
     }
-//    public int Line() {
-//         return line;
-//    }
-//     public int Column() {
-//          return column;
-//     }
 }
