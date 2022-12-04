@@ -9,7 +9,10 @@ public class Board {
     List<List<Chip>> board;
 
     // to cancel a move
-    List<List<Chip>> board_last_copy;
+    List<List<Chip>> boardLastCopy;
+    List<List<Chip>> boardLastLastCopy;
+
+    List<List<Chip>> boardLastLastLastCopy;
 
     Player player1 = new Player(TypeOfPlayer.person1, ChipColor.black);
     Player player2 = new Player(TypeOfPlayer.computer, ChipColor.white);
@@ -19,14 +22,6 @@ public class Board {
     int numOfChips = 4;
 
     Mode mode = Mode.noob;
-
-    public void SetSecondPlayer(TypeOfPlayer typeOfPlayer) {
-        player2.typeOfPlayer = typeOfPlayer;
-    }
-
-    public void SetMode(Mode mode) {
-        this.mode = mode;
-    }
 
     public Board() {
         board = new ArrayList<>(8);
@@ -41,26 +36,36 @@ public class Board {
         board.get(4).set(4, new Chip(ChipColor.white));
         board.get(3).set(4, new Chip(ChipColor.black));
         board.get(4).set(3, new Chip(ChipColor.black));
+
+        boardLastCopy = CopyBoard(board);
+        boardLastLastCopy = CopyBoard(board);
+        boardLastLastLastCopy = CopyBoard(board);
+    }
+
+    public List<List<Chip>> CopyBoard(List<List<Chip>> board1) {
+        System.out.println("copied");
+        List<List<Chip>> newBoard = new ArrayList<>(8);
+        for (int i = 0; i < 8; ++i) {
+            var newLine = new ArrayList<Chip>(8);
+            for (int j = 0; j < 8; ++j) {
+                newLine.add(new Chip(board1.get(i).get(j).color));
+            }
+            newBoard.add(newLine);
+        }
+        return newBoard;
+    }
+
+    public void SetSecondPlayer(TypeOfPlayer typeOfPlayer) {
+        player2.typeOfPlayer = typeOfPlayer;
+    }
+
+    public void SetMode(Mode mode) {
+        this.mode = mode;
     }
 
     public List<List<Chip>> getBoard() {
         return board;
     }
-
-//    public boolean SetChip(Coordinates coordinates) {
-//        if (IsGoodCell(coordinates.line, coordinates.column) &&
-//                EvaluationFunc(coordinates.line, coordinates.column) >= 1) {
-//            board.get(coordinates.line).set(coordinates.column, new Chip(turn));
-////            if (turn == ChipColor.white) {
-////                turn = ChipColor.black;
-////            } else {
-////                turn = ChipColor.white;
-////            }
-//            ++numOfChips;
-//            return true;
-//        }
-//        return false;
-//    }
 
     boolean StillOnTheBoard(int x, int y) {
         return x >= 0 && x <= 7 && y >= 0 && y <= 7;
@@ -205,19 +210,34 @@ public class Board {
         opponent = temp;
     }
 
-    public boolean Turn() {
+    public void CancelTheLastMove() {
+        board = CopyBoard(boardLastLastLastCopy);
+        System.out.println("canceled");
+    }
+
+    public boolean Turn() throws CancelException {
         // now is the 1st player
         if (turn == player1.color) {
             if (player1.typeOfPlayer == TypeOfPlayer.computer) {
                 return ComputersTurn();
             } else {
-                return UserTurn(player1.typeOfPlayer);
+                try {
+                    return UserTurn(player1.typeOfPlayer);
+                } catch (CancelException e) {
+                    throw e;
+                }
+
             }
         } else {
             if (player2.typeOfPlayer == TypeOfPlayer.computer) {
                 return ComputersTurn();
             } else {
-                return UserTurn(player2.typeOfPlayer);
+                try {
+                    return UserTurn(player2.typeOfPlayer);
+                } catch (CancelException e) {
+                    throw e;
+                }
+
             }
         }
     }
@@ -237,13 +257,14 @@ public class Board {
         board.get(coordinates.line).set(coordinates.column, new Chip(turn));
         ++numOfChips;
         ChangeColor(coordinates.line, coordinates.column);
+
+        boardLastLastLastCopy = boardLastLastCopy;
+        boardLastLastCopy = CopyBoard(boardLastCopy);
+        boardLastCopy = CopyBoard(board);
         return true;
     }
 
-    public void CancelTheLastMove() {
-
-    }
-    public boolean UserTurn(TypeOfPlayer player) {
+    public boolean UserTurn(TypeOfPlayer player) throws CancelException {
         if (ChoosePositionNoob() == null) {
             // no move
             return false;
@@ -255,8 +276,7 @@ public class Board {
             var coordinates = Game.ParseCommand();
             if (coordinates.line == -1) {
                 CancelTheLastMove();
-                System.out.println("canceled");
-                return true;
+                throw new CancelException();
             }
             if (IsGoodCell(coordinates.line, coordinates.column) &&
                     EvaluationFunc(coordinates.line, coordinates.column) >= 1) {
@@ -268,6 +288,10 @@ public class Board {
             }
         }
         ++numOfChips;
+
+        boardLastLastLastCopy = boardLastLastCopy;
+        boardLastLastCopy = CopyBoard(boardLastCopy);
+        boardLastCopy = CopyBoard(board);
         return true;
     }
 

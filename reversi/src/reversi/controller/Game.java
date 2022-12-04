@@ -1,9 +1,6 @@
 package reversi.controller;
 
-import reversi.model.Board;
-import reversi.model.Coordinates;
-import reversi.model.Mode;
-import reversi.model.TypeOfPlayer;
+import reversi.model.*;
 import reversi.view.BoardView;
 import reversi.view.Instructions;
 
@@ -103,18 +100,23 @@ public class Game {
             if (board.NoEmptyCells()) {
                 break;
             }
-            if (!board.Turn()) {
-                if (skips == 1) {
-                    System.out.println("Also no move...");
-                    break;
+            try {
+                if (!board.Turn()) {
+                    if (skips == 1) {
+                        System.out.println("Also no move...");
+                        break;
+                    }
+                    skips = 1;
+                    System.out.println("No move...");
+                } else {
+                    skips = 0;
+                    BoardView.PrintBoard(board.getBoard());
                 }
-                skips = 1;
-                System.out.println("No move...");
-            } else {
-                skips = 0;
+                board.ChangeTurn();
+            } catch (CancelException e) {
                 BoardView.PrintBoard(board.getBoard());
+                continue;
             }
-            board.ChangeTurn();
         }
         board.FinishTheGame();
         // Console.clear
