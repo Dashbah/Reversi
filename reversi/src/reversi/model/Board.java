@@ -22,8 +22,6 @@ public class Board {
     // number of occupied cells
     int numOfChips = 4;
 
-    Mode mode = Mode.noob;
-
     public Board() {
         board = new ArrayList<>(8);
         for (int i = 0; i < 8; ++i) {
@@ -57,10 +55,6 @@ public class Board {
 
     public void SetSecondPlayer(TypeOfPlayer typeOfPlayer) {
         player2.typeOfPlayer = typeOfPlayer;
-    }
-
-    public void SetMode(Mode mode) {
-        this.mode = mode;
     }
 
     public List<List<Chip>> getBoard() {
@@ -207,11 +201,6 @@ public class Board {
     boolean ComputersTurn() {
         System.out.println("Computer's move:");
         Coordinates coordinates;
-        //        if (mode == Mode.noob) {
-        //            coordinates = ChoosePositionNoob();
-        //        } else {
-        //            coordinates = ChoosePositionProf();
-        //        }
         coordinates = ChoosePositionNoob();
         if (coordinates == null) {
             return false;
