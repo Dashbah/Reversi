@@ -24,6 +24,7 @@ public class BoardView {
                 System.out.print("| ");
             }
         }
+        System.out.println();
     }
 
     static char GetSymbolOfChip(Chip chip) {
