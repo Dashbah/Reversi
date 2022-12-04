@@ -8,10 +8,9 @@ import java.util.List;
 public class Board {
     List<List<Chip>> board;
 
-    // to cancel a move
+    // is used to cancel a move
     List<List<Chip>> boardLastCopy;
     List<List<Chip>> boardLastLastCopy;
-
     List<List<Chip>> boardLastLastLastCopy;
 
     Player player1 = new Player(TypeOfPlayer.person1, ChipColor.black);
@@ -19,6 +18,8 @@ public class Board {
 
     ChipColor turn = player1.color;
     ChipColor opponent = player2.color;
+
+    // number of occupied cells
     int numOfChips = 4;
 
     Mode mode = Mode.noob;
@@ -42,8 +43,7 @@ public class Board {
         boardLastLastLastCopy = CopyBoard(board);
     }
 
-    public List<List<Chip>> CopyBoard(List<List<Chip>> board1) {
-        System.out.println("copied");
+    List<List<Chip>> CopyBoard(List<List<Chip>> board1) {
         List<List<Chip>> newBoard = new ArrayList<>(8);
         for (int i = 0; i < 8; ++i) {
             var newLine = new ArrayList<Chip>(8);
@@ -133,21 +133,17 @@ public class Board {
         if (board.get(line).get(column).color != ChipColor.empty) {
             return false;
         }
-        if ((line >= 1 && column >= 1 && board.get(line - 1).get(column - 1).color == opponent)
+        return (line >= 1 && column >= 1 && board.get(line - 1).get(column - 1).color == opponent)
                 || (line >= 1 && board.get(line - 1).get(column).color == opponent)
                 || (line >= 1 && column <= 6 && board.get(line - 1).get(column + 1).color == opponent)
                 || (column >= 1 && board.get(line).get(column - 1).color == opponent)
                 || (column <= 6 && board.get(line).get(column + 1).color == opponent)
                 || (line <= 6 && column >= 1 && board.get(line + 1).get(column - 1).color == opponent)
                 || (line <= 6 && board.get(line + 1).get(column).color == opponent)
-                || (line <= 6 && column <= 6 && board.get(line + 1).get(column + 1).color == opponent)
-        ) {
-            return true;
-        }
-        return false;
+                || (line <= 6 && column <= 6 && board.get(line + 1).get(column + 1).color == opponent);
     }
 
-    public Coordinates ChoosePositionNoob() {
+    Coordinates ChoosePositionNoob() {
         double maxEvaluation = 0;
         var bestPosition = new Coordinates(); // new object but for what?
         for (int line = 0; line < 8; ++line) {
@@ -193,7 +189,7 @@ public class Board {
         }
     }
 
-    public void ChangeColor(int line, int column) {
+    void ChangeColor(int line, int column) {
         ChangeColorInOneDirection(line, column, -1, -1);
         ChangeColorInOneDirection(line, column, -1, 0);
         ChangeColorInOneDirection(line, column, -1, 1);
@@ -204,15 +200,75 @@ public class Board {
         ChangeColorInOneDirection(line, column, 1, 1);
     }
 
-    public void ChangeTurn() {
-        var temp = turn;
-        turn = opponent;
-        opponent = temp;
+    void CancelTheLastMove() {
+        board = CopyBoard(boardLastLastLastCopy);
     }
 
-    public void CancelTheLastMove() {
-        board = CopyBoard(boardLastLastLastCopy);
-        System.out.println("canceled");
+    boolean ComputersTurn() {
+        System.out.println("Computer's move:");
+        Coordinates coordinates;
+        //        if (mode == Mode.noob) {
+        //            coordinates = ChoosePositionNoob();
+        //        } else {
+        //            coordinates = ChoosePositionProf();
+        //        }
+        coordinates = ChoosePositionNoob();
+        if (coordinates == null) {
+            return false;
+        }
+        board.get(coordinates.line).set(coordinates.column, new Chip(turn));
+        ++numOfChips;
+        ChangeColor(coordinates.line, coordinates.column);
+
+        boardLastLastLastCopy = boardLastLastCopy;
+        boardLastLastCopy = CopyBoard(boardLastCopy);
+        boardLastCopy = CopyBoard(board);
+        return true;
+    }
+
+    void TypeVariantsFoUser() {
+        System.out.println("Your variants:");
+        for (var i = 0; i < 8; ++i) {
+            for (var j = 0; j < 8; ++j) {
+                if (IsGoodCell(i, j) &&
+                        EvaluationFunc(i, j) >= 1) {
+                    char column = (char) ('a' + j);
+                    System.out.println((i + 1) + " " + column);
+                }
+            }
+        }
+    }
+
+    boolean UserTurn(TypeOfPlayer player) throws CancelException {
+        if (ChoosePositionNoob() == null) {
+            // no move
+            return false;
+        }
+        System.out.println(player + ", type your command in num letter format (5 e)");
+        System.out.println("type -1 to cancel your last move");
+        System.out.println("You are " + turn + " ;)");
+        TypeVariantsFoUser();
+        while (true) {
+            var coordinates = Game.ParseCommand();
+            if (coordinates.line == -1) {
+                CancelTheLastMove();
+                throw new CancelException();
+            }
+            if (IsGoodCell(coordinates.line, coordinates.column) &&
+                    EvaluationFunc(coordinates.line, coordinates.column) >= 1) {
+                board.get(coordinates.line).set(coordinates.column, new Chip(turn));
+                ChangeColor(coordinates.line, coordinates.column);
+                break;
+            } else {
+                System.out.println("Can't paste here, try again:");
+            }
+        }
+        ++numOfChips;
+
+        boardLastLastLastCopy = boardLastLastCopy;
+        boardLastLastCopy = CopyBoard(boardLastCopy);
+        boardLastCopy = CopyBoard(board);
+        return true;
     }
 
     public boolean Turn() throws CancelException {
@@ -237,62 +293,14 @@ public class Board {
                 } catch (CancelException e) {
                     throw e;
                 }
-
             }
         }
     }
 
-    public boolean ComputersTurn() {
-        System.out.println("Computer's move:");
-        Coordinates coordinates;
-//        if (mode == Mode.noob) {
-//            coordinates = ChoosePositionNoob();
-//        } else {
-//            coordinates = ChoosePositionProf();
-//        }
-        coordinates = ChoosePositionNoob();
-        if (coordinates == null) {
-            return false;
-        }
-        board.get(coordinates.line).set(coordinates.column, new Chip(turn));
-        ++numOfChips;
-        ChangeColor(coordinates.line, coordinates.column);
-
-        boardLastLastLastCopy = boardLastLastCopy;
-        boardLastLastCopy = CopyBoard(boardLastCopy);
-        boardLastCopy = CopyBoard(board);
-        return true;
-    }
-
-    public boolean UserTurn(TypeOfPlayer player) throws CancelException {
-        if (ChoosePositionNoob() == null) {
-            // no move
-            return false;
-        }
-        System.out.println(player + ", type your command in num letter format (5 e)");
-        System.out.println("You are " + turn + " ;)");
-        // TypeVariants();
-        while (true) {
-            var coordinates = Game.ParseCommand();
-            if (coordinates.line == -1) {
-                CancelTheLastMove();
-                throw new CancelException();
-            }
-            if (IsGoodCell(coordinates.line, coordinates.column) &&
-                    EvaluationFunc(coordinates.line, coordinates.column) >= 1) {
-                board.get(coordinates.line).set(coordinates.column, new Chip(turn));
-                ChangeColor(coordinates.line, coordinates.column);
-                break;
-            } else {
-                System.out.println("Can't paste here, try again:");
-            }
-        }
-        ++numOfChips;
-
-        boardLastLastLastCopy = boardLastLastCopy;
-        boardLastLastCopy = CopyBoard(boardLastCopy);
-        boardLastCopy = CopyBoard(board);
-        return true;
+    public void ChangeTurn() {
+        var temp = turn;
+        turn = opponent;
+        opponent = temp;
     }
 
     public boolean NoEmptyCells() {

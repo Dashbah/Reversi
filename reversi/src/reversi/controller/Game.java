@@ -6,25 +6,20 @@ import reversi.view.Instructions;
 
 import java.util.Scanner;
 
-
 public class Game {
-
     Board board;
     static Scanner input = new Scanner(System.in);
 
-    // ChipColor turn = ChipColor.white;
-
     public Game() {
         board = new Board();
-        // maybe startGame here
     }
 
+    // returns Coordinates(-1, -1) to cancel the last move
     public static Coordinates ParseCommand() {
-        // returns Coordinates(-1, -1) to cancel the last move
         while (true) {
             var command = input.nextLine();
             try {
-                if (command.substring(0, 2).equals("-1")) {
+                if (command.startsWith("-1")) {
                     return new Coordinates(-1, -1);
                 }
                 int line = Integer.parseInt(command.substring(0, 1)) - 1;
@@ -39,7 +34,6 @@ public class Game {
                 }
                 return new Coordinates(line, column);
             } catch (Exception e) {
-                //NumberFormatException | IndexOutOfBoundsException e
                 System.out.println("Incorrect command. Try again");
             }
         }
@@ -67,27 +61,27 @@ public class Game {
             }
             System.out.println("Incorrect typeOfPlayers! Try again:");
         }
-        System.out.println("for easy mode enter 1");
-        System.out.println("for prof mode enter 2");
-        while (true) {
-            int mode;
-            try {
-                mode = input.nextInt();
-            } catch (Exception e) {
-                System.out.println("Incorrect mode! Try again:");
-                input.nextLine();
-                continue;
-            }
-            if (mode == 1) {
-                board.SetMode(Mode.noob);
-                break;
-            }
-            if (mode == 2) {
-                board.SetMode(Mode.prof);
-                break;
-            }
-            System.out.println("Incorrect input! Try again:");
-        }
+//        System.out.println("for easy mode enter 1");
+//        System.out.println("for prof mode enter 2");
+//        while (true) {
+//            int mode;
+//            try {
+//                mode = input.nextInt();
+//            } catch (Exception e) {
+//                System.out.println("Incorrect mode! Try again:");
+//                input.nextLine();
+//                continue;
+//            }
+//            if (mode == 1) {
+//                board.SetMode(Mode.noob);
+//                break;
+//            }
+//            if (mode == 2) {
+//                board.SetMode(Mode.prof);
+//                break;
+//            }
+//            System.out.println("Incorrect input! Try again:");
+//        }
         input.nextLine();
     }
 
@@ -114,12 +108,11 @@ public class Game {
                 }
                 board.ChangeTurn();
             } catch (CancelException e) {
+                // when user enters -1 to cancel the move
                 BoardView.PrintBoard(board.getBoard());
-                continue;
             }
         }
         board.FinishTheGame();
-        // Console.clear
     }
 
 

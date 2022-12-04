@@ -13,5 +13,5 @@ public enum ChipColor {
             return "black";
         }
     },
-    empty;
+    empty
 }

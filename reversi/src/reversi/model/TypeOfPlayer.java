@@ -13,5 +13,5 @@ public enum TypeOfPlayer {
             return "Player2";
         }
     },
-    computer;
+    computer
 }

@@ -6,17 +6,12 @@ import reversi.model.ChipColor;
 import java.util.List;
 
 public class BoardView {
-    //   a b c d e f h
-    // 1
-    // ...
-    // 8
-
+    static String lineOfLetters = "    a  b  c  d  e  f  g  h";
     public static void PrintBoard(List<List<Chip>> board) {
-        System.out.print("    a  b  c  d  e  f  g  h"); // make it const
+        System.out.print(lineOfLetters); // make it const
         int numOfLine = 0;
         for (var line : board) {
             System.out.println();
-            // System.out.println("_ _ _ _ _ _ _ _ _ _ _");
             System.out.print(++numOfLine);
             System.out.print(" | ");
             for (var chip : line) {
