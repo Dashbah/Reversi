@@ -13,7 +13,7 @@ public class Board {
     // = .black
     ChipColor turn = ChipColor.black;
     ChipColor opponent = ChipColor.white;
-
+    int numOfChips = 0;
     enum Mode {
         noob, prof;
     }
@@ -49,6 +49,7 @@ public class Board {
 //            } else {
 //                turn = ChipColor.white;
 //            }
+            ++numOfChips;
             return true;
         }
         return false;
@@ -136,7 +137,7 @@ public class Board {
         return false;
     }
 
-    Coordinates ChoosePositionNoob() {
+    public Coordinates ChoosePositionNoob() {
         double maxEvaluation = 0;
         var bestPosition = new Coordinates(); // new object but for what?
         for (int line = 0; line < 8; ++line) {
@@ -198,7 +199,7 @@ public class Board {
         turn = opponent;
         opponent = temp;
     }
-    public void ComputersTurn() {
+    public boolean ComputersTurn() {
         Coordinates coordinates;
 //        if (mode == Mode.noob) {
 //            coordinates = ChoosePositionNoob();
@@ -206,11 +207,42 @@ public class Board {
 //            coordinates = ChoosePositionProf();
 //        }
         coordinates = ChoosePositionNoob();
+        if (coordinates == null) {
+            return false;
+        }
         board.get(coordinates.line).set(coordinates.column, new Chip(turn));
+        ++numOfChips;
         ChangeColor(coordinates.line, coordinates.column);
+        return true;
     }
 
     public boolean NoEmptyCells() {
-        return false;
+        return numOfChips == 64;
+    }
+
+    public void FinishTheGame() {
+        int blackChips = 0;
+        int whiteChips = 0;
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                if (board.get(i).get(j).color == ChipColor.white) {
+                    ++whiteChips;
+                } else {
+                    ++blackChips;
+                }
+            }
+        }
+        System.out.println("Score:");
+        System.out.println("black: " + blackChips);
+        System.out.println("white: " + whiteChips);
+        if (whiteChips > blackChips) {
+            System.out.println("White won!");
+        } else {
+            if (whiteChips == blackChips) {
+                System.out.println("Wow! Friendship won");
+            } else {
+                System.out.println("Black won!");
+            }
+        }
     }
 }

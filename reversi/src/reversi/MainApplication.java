@@ -7,5 +7,6 @@ public class MainApplication {
         var game = new Game();
         game.StartGame();
         game.StartTheGame();
+
     }
 }

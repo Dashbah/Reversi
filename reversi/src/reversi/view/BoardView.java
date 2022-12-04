@@ -38,7 +38,8 @@ public class BoardView {
         }
     }
 
-    static char SymbolOfWhite = 'w';
-    static char SymbolOfBlack = 'b';
+    static char SymbolOfWhite = '●';
+    static char SymbolOfBlack = '◯';
     static char EmptySym = ' ';
+
 }
